@@ -27,12 +27,30 @@ def ultralytics_detections(results, format='xyxy'):
     
     return processed_results
 
-def quick_display(results, ultralytics_resutls=True, fps=30, width=640, height=480, multicam=False):
+def quick_display(results, ultralytics_results=True, fps=30, width=640, height=480, multicam=False):
+    """
+    Quickly display detection results in a Jupyter notebook.
+
+    Args:
+    results (list or dict): Detection results from YOLO or other models.
+    ultralytics_results (bool): If True, assumes results are from Ultralytics YOLO. Default is True.
+    fps (int): Frames per second for video playback. Default is 30.
+    width (int): Width of the display frame. Default is 640.
+    height (int): Height of the display frame. Default is 480.
+    multicam (bool): If True, assumes results are from multiple cameras. Default is False.
+
+    Returns:
+    None: Displays the results inline in the Jupyter notebook.
+
+    Note:
+    This function requires OpenCV (cv2), base64, IPython.display, and time modules.
+    """
     import cv2
     import base64
     from IPython.display import display, HTML, clear_output
     import time
-    if ultralytics_resutls and len(results) <= 1:
+
+    if ultralytics_results and len(results) <= 1:
         try:
             _, buffer = cv2.imencode('.jpg', results[0].plot()) 
             img_str = base64.b64encode(buffer).decode('ascii')
