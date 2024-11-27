@@ -8,7 +8,7 @@ import numpy as np
 import pandas as pd
 from tqdm import tqdm
 
-from visiontools.camera_loader.models.frame_payload import FramePayload
+from visionapi.camera_loader.models.frame_payload import FramePayload
 
 logger = logging.getLogger(__name__)
 

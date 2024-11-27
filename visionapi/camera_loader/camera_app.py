@@ -1,5 +1,5 @@
 import numpy as np
-from visiontools.camera_loader.detect_cameras import DetectPossibleCameras
+from visionapi.camera_loader.detect_cameras import DetectPossibleCameras
 import cv2
 from datetime import datetime
 import os
