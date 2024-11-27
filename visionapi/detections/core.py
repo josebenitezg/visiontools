@@ -29,21 +29,27 @@ def ultralytics_detections(results, format='xyxy'):
 
 def quick_display(results, ultralytics_results=False, notebook=False, fps=30, width=640, height=480, multicam=False):
     """
-    Quickly display detection results in a Jupyter notebook.
+    Quickly display detection results in a Jupyter notebook or OpenCV window.
 
     Args:
-    results (list or dict): Detection results from YOLO or other models.
-    ultralytics_results (bool): If True, assumes results are from Ultralytics YOLO. Default is True.
-    fps (int): Frames per second for video playback. Default is 30.
-    width (int): Width of the display frame. Default is 640.
-    height (int): Height of the display frame. Default is 480.
-    multicam (bool): If True, assumes results are from multiple cameras. Default is False.
+        results (list or dict): Detection results from YOLO or other models. Can be:
+            - List of ultralytics Results objects for single camera
+            - Dict of lists of Results objects for multiple cameras
+            - List of frames with detections drawn
+        ultralytics_results (bool): If True, assumes results are from Ultralytics YOLO. Default is False.
+        notebook (bool): If True, displays in Jupyter notebook. If False, uses OpenCV window. Default is False.
+        fps (int): Frames per second for video playback. Default is 30.
+        width (int): Width of the display frame. Default is 640.
+        height (int): Height of the display frame. Default is 480.
+        multicam (bool): If True, assumes results are from multiple cameras. Default is False.
 
     Returns:
-    None: Displays the results inline in the Jupyter notebook.
+        None: Displays the results either inline in Jupyter notebook or in OpenCV window.
 
     Note:
-    This function requires OpenCV (cv2), base64, IPython.display, and time modules.
+        This function requires OpenCV (cv2), base64, IPython.display, and time modules.
+        For notebook display, results will be shown inline.
+        For OpenCV window display, press 'q' to exit.
     """
     import cv2
     import base64
@@ -114,3 +120,50 @@ def quick_display(results, ultralytics_results=False, notebook=False, fps=30, wi
                 except IndexError:
                     print("No detections found")
                     pass
+    else:
+        # Display using cv2 window
+        frame_count = 0
+        while True:
+            if isinstance(results, dict):
+                try:
+                    frames = [results[cam][frame_count].plot() for cam in sorted(results.keys())]
+                    frame_count += 1
+                except IndexError:
+                    break
+
+                # Resize frames to have the same height
+                max_height = max(frame.shape[0] for frame in frames)
+                resized_frames = [cv2.resize(frame, (int(frame.shape[1] * max_height / frame.shape[0]), max_height)) for frame in frames]
+                
+                # Calculate total width
+                total_width = sum(frame.shape[1] for frame in resized_frames)
+                
+                # Create a blank canvas
+                canvas = np.zeros((max_height, total_width, 3), dtype=np.uint8)
+                
+                # Paste frames onto the canvas
+                x_offset = 0
+                for i, frame in enumerate(resized_frames):
+                    canvas[:, x_offset:x_offset+frame.shape[1]] = frame
+                    cv2.putText(canvas, f'cam{i}', (x_offset + 10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
+                    x_offset += frame.shape[1]
+
+                cv2.imshow('Detections', canvas)
+
+            else:
+                try:
+                    frame = results[frame_count].plot()
+                    cv2.imshow('Detections', frame)
+                    frame_count += 1
+                except IndexError:
+                    pass
+
+            # Wait for key press
+            key = cv2.waitKey(int(1000/fps)) & 0xFF
+            
+            # Press 'q' to quit
+            if key == ord('q'):
+                break
+
+        cv2.destroyAllWindows()
+        
