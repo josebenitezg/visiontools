@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "visiontools"
+name = "visionapi"
 version = "0.1.0"
 description = ""
 authors = ["Jose Benitez <jose@intuitivo.com>"]
