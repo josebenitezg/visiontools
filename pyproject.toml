@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "visionapi"
-version = "0.0.16"
+version = "0.0.18"
 description = ""
 authors = ["Jose Benitez <jose@intuitivo.com>"]
 readme = "README.md"
